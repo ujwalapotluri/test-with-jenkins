@@ -1,0 +1,11 @@
+FROM <your-account-id>.dkr.ecr.us-east-1.amazonaws.com/base-image:latest
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+
+CMD ["python", "app.py"]
+

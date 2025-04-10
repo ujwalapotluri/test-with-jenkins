@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-east-1'
+        ECR_BASE = 'your-account-id.dkr.ecr.us-east-1.amazonaws.com/base-image'
+        ECR_APP = 'your-account-id.dkr.ecr.us-east-1.amazonaws.com/app-image'
+        IMAGE_TAG = 'latest'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/your-org/jenkins-ecr-apprunner-cicd.git'
+            }
+        }
+
+        stage('Authenticate with ECR') {
+            steps {
+                sh '''
+                    aws ecr get-login-password --region $AWS_REGION | \
+                    docker login --username AWS --password-stdin $ECR_APP
+                '''
+            }
+        }
+
+        stage('Build App Image') {
+            steps {
+                dir('app') {
+                    sh '''
+                        docker build -t $ECR_APP:$IMAGE_TAG .
+                    '''
+                }
+            }
+        }
+
+        stage('Push App Image to ECR') {
+            steps {
+                sh '''
+                    docker push $ECR_APP:$IMAGE_TAG
+                '''
+            }
+        }
+
+        stage('Deploy to App Runner') {
+            steps {
+                sh '''
+                    aws apprunner update-service \
+                    --service-arn arn:aws:apprunner:us-east-1:<your-account-id>:service/<your-service-name>/<your-service-id> \
+                    --source-configuration ImageRepository="{ImageIdentifier=$ECR_APP:$IMAGE_TAG,ImageRepositoryType=ECR}"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'App successfully deployed to AWS App Runner!'
+        }
+        failure {
+            echo 'Something went wrong.'
+        }
+    }
+}
+
