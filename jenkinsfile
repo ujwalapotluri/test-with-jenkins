@@ -3,15 +3,15 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-1'
-        ECR_BASE = 'your-account-id.dkr.ecr.us-east-1.amazonaws.com/base-image'
-        ECR_APP = 'your-account-id.dkr.ecr.us-east-1.amazonaws.com/app-image'
+        ECR_BASE = '851725599256.dkr.ecr.ap-south-1.amazonaws.com/test_jenkins'
+        ECR_APP = '851725599256.dkr.ecr.ap-south-1.amazonaws.com/app'
         IMAGE_TAG = 'latest'
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-org/jenkins-ecr-apprunner-cicd.git'
+                git branch: 'main', url: 'https://github.com/test-with-jenkins.git'
             }
         }
 
