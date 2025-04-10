@@ -18,6 +18,18 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/ujwalapotluri/test-with-jenkins.git'
             }
         }
+    stage('Configure AWS Credentials') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-ecr-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    sh '''
+                        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                        aws configure set default.region $AWS_REGION
+                    '''
+                }
+            }
+        } 
+
 
         stage('Authenticate with ECR') {
             steps {
