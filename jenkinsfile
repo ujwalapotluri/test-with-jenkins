@@ -46,7 +46,7 @@ pipeline {
             steps {
                 sh '''
                     aws apprunner update-service \
-                    --service-arn arn:aws:apprunner:us-east-1:<your-account-id>:service/<your-service-name>/<your-service-id> \
+                    --service-arn arn:arn:aws:apprunner:ap-south-1:851725599256:service/jenkinsdeploy/6576f56bcce44bf8aa303806295602df \
                     --source-configuration ImageRepository="{ImageIdentifier=$ECR_APP:$IMAGE_TAG,ImageRepositoryType=ECR}"
                 '''
             }
