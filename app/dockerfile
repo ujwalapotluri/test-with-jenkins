@@ -1,4 +1,4 @@
-FROM <your-account-id>.dkr.ecr.us-east-1.amazonaws.com/base-image:latest
+FROM 851725599256.dkr.ecr.ap-south-1.amazonaws.com/test_jenkins
 
 WORKDIR /app
 
