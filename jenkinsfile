@@ -7,6 +7,10 @@ pipeline {
         ECR_APP = '851725599256.dkr.ecr.ap-south-1.amazonaws.com/app'
         IMAGE_TAG = 'latest'
     }
+     triggers {
+        pollSCM('* * * * *')
+    }
+
 
     stages {
         stage('Checkout Code') {
