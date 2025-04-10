@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'us-east-1'
+        AWS_REGION = 'ap-south-1'
         ECR_BASE = '851725599256.dkr.ecr.ap-south-1.amazonaws.com/test_jenkins'
         ECR_APP = '851725599256.dkr.ecr.ap-south-1.amazonaws.com/app'
         IMAGE_TAG = 'latest'
@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/test-with-jenkins.git'
+                git branch: 'main', url: 'https://github.com/ujwalapotluri/test-with-jenkins.git'
             }
         }
 
