@@ -1,81 +1,36 @@
 pipeline {
     agent any
 
-    environment {
-        AWS_REGION = 'ap-south-1'
-        ECR_BASE = '851725599256.dkr.ecr.ap-south-1.amazonaws.com/base'
-        ECR_APP = '851725599256.dkr.ecr.ap-south-1.amazonaws.com/app'
-        IMAGE_TAG = 'latest'
-    }
-     triggers {
-        pollSCM('* * * * *')
-    }
-
-
     stages {
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main', url: 'https://github.com/ujwalapotluri/test-with-jenkins.git'
-            }
-        }
-    stage('Configure AWS Credentials') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'aws-ecr-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh '''
-                        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-                        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-                        aws configure set default.region $AWS_REGION
-                    '''
+
+        stage('Guard: Skip Indexing Build') {
+            when {
+                expression {
+                    // Skip builds triggered by branch indexing
+                    return !currentBuild.rawBuild
+                        .getCauses()
+                        .toString()
+                        .contains('BranchIndexingCause')
                 }
             }
-        } 
-
-
-        stage('Authenticate with ECR') {
             steps {
-                sh '''
-                    aws ecr get-login-password --region $AWS_REGION | \
-                    docker login --username AWS --password-stdin $ECR_APP
-                '''
+                echo "Valid build trigger detected"
             }
         }
 
-        stage('Build App Image') {
-            steps {
-                dir('app') {
-                    sh '''
-                        docker build -t $ECR_APP:$IMAGE_TAG .
-                    '''
+        stage('Success') {
+            when {
+                expression {
+                    // Same guard to fully skip indexing builds
+                    return !currentBuild.rawBuild
+                        .getCauses()
+                        .toString()
+                        .contains('BranchIndexingCause')
                 }
             }
-        }
-
-        stage('Push App Image to ECR') {
             steps {
-                sh '''
-                    docker push $ECR_APP:$IMAGE_TAG
-                '''
+                echo "It is successful"
             }
-        }
-
-        stage('Deploy to App Runner') {
-            steps {
-                sh '''
-                    aws apprunner update-service \
-                    --service-arn arn:aws:apprunner:ap-south-1:851725599256:service/demo/cd3959c68b7b44ffad75703ae73f61d2 \
-                    --source-configuration ImageRepository="{ImageIdentifier=$ECR_APP:$IMAGE_TAG,ImageRepositoryType=ECR}"
-                '''
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'App successfully deployed to AWS App Runner!'
-        }
-        failure {
-            echo 'Something went wrong.'
         }
     }
 }
-
