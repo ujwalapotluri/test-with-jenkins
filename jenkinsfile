@@ -2,34 +2,14 @@ pipeline {
     agent any
 
     stages {
-
-        stage('Guard: Skip Indexing Build') {
+        stage('Skip Indexing Build') {
             when {
-                expression {
-                    // Skip builds triggered by branch indexing
-                    return !currentBuild.rawBuild
-                        .getCauses()
-                        .toString()
-                        .contains('BranchIndexingCause')
+                not {
+                    triggeredBy 'BranchIndexingCause'
                 }
             }
             steps {
-                echo "Valid build trigger detected"
-            }
-        }
-
-        stage('Success') {
-            when {
-                expression {
-                    // Same guard to fully skip indexing builds
-                    return !currentBuild.rawBuild
-                        .getCauses()
-                        .toString()
-                        .contains('BranchIndexingCause')
-                }
-            }
-            steps {
-                echo "It is successful"
+                echo "Build triggered"
             }
         }
     }
