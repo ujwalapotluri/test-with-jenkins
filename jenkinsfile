@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Success') {
             steps {
-                echo "It is successful"
+                echo "Build gave after scan,It is successful"
             }
         }
     }
