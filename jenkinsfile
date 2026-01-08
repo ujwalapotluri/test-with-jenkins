@@ -2,9 +2,14 @@ pipeline {
     agent any
 
     stages {
-        stage('Success') {
+        stage('Skip Indexing Build') {
+            when {
+                not {
+                    triggeredBy 'BranchIndexingCause'
+                }
+            }
             steps {
-                echo "Build gave after scan,It is successful"
+                echo "Build triggered by commit / PR"
             }
         }
     }
